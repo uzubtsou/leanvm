@@ -1,8 +1,5 @@
 FROM centos:7
 
-# Docker needs to know that it's in a container 
-ENV container=docker
-
 ARG USER=deus
 
 RUN yum install -y epel-release && \ 
@@ -10,7 +7,8 @@ RUN yum install -y epel-release && \
                    openssh-clients \
                    openssl-libs \
                    passwd \
-                   sudo \ less \
+                   sudo \
+		   less \
                    iproute \
 		   iputils \
 		   wget \
@@ -43,7 +41,7 @@ ENV LANGUAGE=en_US
 
 EXPOSE 22
 USER ${USER}
-VOLUME ["/sys/fs/cgroup"]
+
 # graceful shutdown the container
 STOPSIGNAL SIGRTMIN+3
 CMD ["/usr/sbin/init"]
