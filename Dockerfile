@@ -1,6 +1,7 @@
 FROM centos:7
 
-ENV container docker
+# Docker needs to know that it's in a container 
+ENV container=docker
 
 ARG USER=deus
 
@@ -9,8 +10,7 @@ RUN yum install -y epel-release && \
                    openssh-clients \
                    openssl-libs \
                    passwd \
-                   sudo \
-                   less \
+                   sudo \ less \
                    iproute \
 		   iputils \
 		   wget \
