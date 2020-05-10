@@ -4,16 +4,6 @@ ENV container docker
 
 ARG USER=deus
 
-# RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == \
-# systemd-tmpfiles-setup.service ] || rm -f $i; done); \
-# rm -f /lib/systemd/system/multi-user.target.wants/*;\
-# rm -f /etc/systemd/system/*.wants/*;\
-# rm -f /lib/systemd/system/local-fs.target.wants/*; \
-# rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
-# rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-# rm -f /lib/systemd/system/basic.target.wants/*;\
-# rm -f /lib/systemd/system/anaconda.target.wants/*;
-
 RUN yum install -y epel-release && \ 
     yum install -y openssh-server \
                    openssh-clients \
@@ -22,7 +12,22 @@ RUN yum install -y epel-release && \
                    sudo \
                    less \
                    iproute \
-    && systemctl enable sshd
+		   iputils \
+		   wget \
+    && systemctl enable sshd && \
+    yum clean all
+
+RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == \
+   systemd-tmpfiles-setup.service ] || rm -f $i; done); \
+   rm -f /lib/systemd/system/multi-user.target.wants/*;\
+   rm -f /etc/systemd/system/*.wants/*;\
+   rm -f /lib/systemd/system/local-fs.target.wants/*; \
+   rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+   rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+   rm -f /lib/systemd/system/basic.target.wants/*;\
+   rm -f /lib/systemd/system/anaconda.target.wants/*;\
+   rm -f /lib/systemd/system/*.wants/*update-utmp*;
+
 RUN useradd -s /bin/bash ${USER} && \
     echo ${USER} | passwd ${USER} --stdin && \
     echo "${USER} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USER}
@@ -39,4 +44,6 @@ ENV LANGUAGE=en_US
 EXPOSE 22
 USER ${USER}
 VOLUME ["/sys/fs/cgroup"]
+# graceful shutdown the container
+STOPSIGNAL SIGRTMIN+3
 CMD ["/usr/sbin/init"]
